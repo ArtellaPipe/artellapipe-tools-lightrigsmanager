@@ -59,7 +59,10 @@ class LightRig(base.BaseWidget, object):
 
         self._light_btn = QPushButton()
         self._light_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._light_btn.setIcon(self._project.resource.icon(self._name.lower()))
+        light_rig_icon = resource.ResourceManager.instance().icon(self._name.lower(), theme='lightrigs')
+        if not light_rig_icon:
+            light_rig_icon = resource.ResourceManager.instance().icon('default', theme='lightrigs')
+        self._light_btn.setIcon(light_rig_icon)
         self._light_btn.setIconSize(QSize(120, 140))
         self._title_lbl = QLabel(self._name)
         self._title_lbl.setAlignment(Qt.AlignCenter)
