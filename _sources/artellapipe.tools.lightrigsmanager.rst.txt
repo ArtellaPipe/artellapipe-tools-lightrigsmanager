@@ -1,0 +1,17 @@
+artellapipe.tools.lightrigsmanager package
+==========================================
+
+Submodules
+----------
+
+.. toctree::
+
+   artellapipe.tools.lightrigsmanager.lightrigsmanager
+
+Module contents
+---------------
+
+.. automodule:: artellapipe.tools.lightrigsmanager
+   :members:
+   :undoc-members:
+   :show-inheritance:
