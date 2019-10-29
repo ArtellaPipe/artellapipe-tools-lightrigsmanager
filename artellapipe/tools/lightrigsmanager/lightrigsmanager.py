@@ -31,8 +31,8 @@ from artellapipe.gui import window
 from artellapipe.utils import resource
 
 logging.config.fileConfig(artellapipe.tools.lightrigsmanager.get_logging_config(), disable_existing_loggers=False)
-logger = logging.getLogger(__name__)
-logger.setLevel(artellapipe.tools.lightrigsmanager.get_logging_level())
+LOGGER = logging.getLogger()
+LOGGER.setLevel(artellapipe.tools.lightrigsmanager.get_logging_level())
 
 
 class LightRig(base.BaseWidget, object):
@@ -59,9 +59,9 @@ class LightRig(base.BaseWidget, object):
 
         self._light_btn = QPushButton()
         self._light_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        light_rig_icon = resource.ResourceManager.instance().icon(self._name.lower(), theme='lightrigs')
+        light_rig_icon = resource.ResourceManager().icon(self._name.lower(), theme='lightrigs')
         if not light_rig_icon:
-            light_rig_icon = resource.ResourceManager.instance().icon('default', theme='lightrigs')
+            light_rig_icon = resource.ResourceManager().icon('default', theme='lightrigs')
         self._light_btn.setIcon(light_rig_icon)
         self._light_btn.setIconSize(QSize(120, 140))
         self._title_lbl = QLabel(self._name)
@@ -70,9 +70,9 @@ class LightRig(base.BaseWidget, object):
         self.main_layout.addWidget(self._title_lbl)
 
         self._light_menu = QMenu(self)
-        open_action = QAction(resource.ResourceManager.instance().icon('open'), 'Open Light Rig', self._light_menu)
-        import_action = QAction(resource.ResourceManager.instance().icon('import'), 'Import Light Rig', self._light_menu)
-        reference_action = QAction(resource.ResourceManager.instance().icon('reference'), 'Reference Light Rig', self._light_menu)
+        open_action = QAction(resource.ResourceManager().icon('open'), 'Open Light Rig', self._light_menu)
+        import_action = QAction(resource.ResourceManager().icon('import'), 'Import Light Rig', self._light_menu)
+        reference_action = QAction(resource.ResourceManager().icon('reference'), 'Reference Light Rig', self._light_menu)
         self._light_menu.addAction(open_action)
         self._light_menu.addAction(import_action)
         self._light_menu.addAction(reference_action)
@@ -184,9 +184,9 @@ class ArtellaLightRigManager(window.ArtellaWindow, object):
         self.main_layout.addLayout(buttons_layout)
 
         self._open_btn = QToolButton()
-        self._open_btn.setIcon(resource.ResourceManager.instance().icon('open'))
+        self._open_btn.setIcon(resource.ResourceManager().icon('open'))
         self._sync_btn = QToolButton()
-        self._sync_btn.setIcon(resource.ResourceManager.instance().icon('sync'))
+        self._sync_btn.setIcon(resource.ResourceManager().icon('sync'))
         buttons_layout.addItem(QSpacerItem(10, 0, QSizePolicy.Expanding, QSizePolicy.Fixed))
         buttons_layout.addWidget(self._open_btn)
         buttons_layout.addWidget(splitters.get_horizontal_separator_widget())
