@@ -25,14 +25,10 @@ import tpDccLib as tp
 from tpQtLib.core import base, qtutils
 from tpQtLib.widgets import splitters
 
-import artellapipe.tools.lightrigsmanager
-from artellapipe.core import defines
-from artellapipe.gui import window
+from artellapipe.core import tool, defines
 from artellapipe.utils import resource
 
-logging.config.fileConfig(artellapipe.tools.lightrigsmanager.get_logging_config(), disable_existing_loggers=False)
 LOGGER = logging.getLogger()
-LOGGER.setLevel(artellapipe.tools.lightrigsmanager.get_logging_level())
 
 
 class LightRig(base.BaseWidget, object):
@@ -113,13 +109,13 @@ class LightRig(base.BaseWidget, object):
 
         light_rigs_path = self._project.get_light_rigs_path()
         if not light_rigs_path:
-            logger.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
+            LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
         light_rig = os.path.join(light_rigs_path, defines.ARTELLA_WORKING_FOLDER, self._name.title(), light_rig_name)
         if not os.path.exists(light_rig):
-            logger.error('Light Rig File {} does not exists!'.format(light_rig_name))
+            LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
             return False
         return tp.Dcc.open_file(light_rig, force=True)
 
@@ -130,13 +126,13 @@ class LightRig(base.BaseWidget, object):
 
         light_rigs_path = self._project.get_light_rigs_path()
         if not light_rigs_path:
-            logger.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
+            LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
         light_rig = os.path.join(light_rigs_path, defines.ARTELLA_WORKING_FOLDER, self._name.title(), light_rig_name)
         if not os.path.exists(light_rig):
-            logger.error('Light Rig File {} does not exists!'.format(light_rig_name))
+            LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
             return False
 
         return tp.Dcc.import_file(light_rig, force=True)
@@ -148,32 +144,25 @@ class LightRig(base.BaseWidget, object):
 
         light_rigs_path = self._project.get_light_rigs_path()
         if not light_rigs_path:
-            logger.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
+            LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
         light_rig = os.path.join(light_rigs_path, defines.ARTELLA_WORKING_FOLDER, self._name.title(), light_rig_name)
         print(light_rig)
         if not os.path.exists(light_rig):
-            logger.error('Light Rig File {} does not exists!'.format(light_rig_name))
+            LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
             return False
 
         return tp.Dcc.reference_file(light_rig, force=True)
 
 
-class ArtellaLightRigManager(window.ArtellaWindow, object):
+class ArtellaLightRigManager(tool.Tool, object):
 
-    VERSION = '0.0.1'
-    LOGO_NAME = 'lightrigsmanager_logo'
     LIGHT_RIG_CLASS = LightRig
 
-    def __init__(self, project):
-        super(ArtellaLightRigManager, self).__init__(
-            project=project,
-            name='LightRigManagerWindow',
-            title='Light Rigs Manager',
-            size=(100, 150)
-        )
+    def __init__(self, project, config):
+        super(ArtellaLightRigManager, self).__init__(project=project, config=config)
 
     def ui(self):
         super(ArtellaLightRigManager, self).ui()
@@ -228,10 +217,3 @@ class ArtellaLightRigManager(window.ArtellaWindow, object):
     def _on_sync_light_rigs(self):
         self._project.sync_paths([self._project.get_light_rigs_path()])
         self._update_ui()
-
-
-def run(project):
-    win = ArtellaLightRigManager(project=project)
-    win.show()
-
-    return win
