@@ -68,7 +68,8 @@ class LightRig(base.BaseWidget, object):
         self._light_menu = QMenu(self)
         open_action = QAction(resource.ResourceManager().icon('open'), 'Open Light Rig', self._light_menu)
         import_action = QAction(resource.ResourceManager().icon('import'), 'Import Light Rig', self._light_menu)
-        reference_action = QAction(resource.ResourceManager().icon('reference'), 'Reference Light Rig', self._light_menu)
+        reference_action = QAction(
+            resource.ResourceManager().icon('reference'), 'Reference Light Rig', self._light_menu)
         self._light_menu.addAction(open_action)
         self._light_menu.addAction(import_action)
         self._light_menu.addAction(reference_action)
