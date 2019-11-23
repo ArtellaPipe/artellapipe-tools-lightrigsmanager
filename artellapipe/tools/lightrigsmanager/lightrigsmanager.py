@@ -18,14 +18,15 @@ import logging.config
 from Qt.QtWidgets import *
 from Qt.QtCore import *
 
-from tpPyUtils import folder as folder_utils
+from tpPyUtils import folder as folder_utils, path as path_utils
 
 import tpDccLib as tp
 
 from tpQtLib.core import base, qtutils
 from tpQtLib.widgets import splitters
 
-from artellapipe.core import tool, defines
+import artellapipe
+from artellapipe.libs import artella
 from artellapipe.utils import resource
 
 LOGGER = logging.getLogger()
@@ -108,13 +109,14 @@ class LightRig(base.BaseWidget, object):
         if tp.Dcc.scene_is_modified():
             tp.Dcc.save_current_scene(force=False)
 
-        light_rigs_path = self._project.get_light_rigs_path()
+        light_rigs_path = self.get_light_rigs_path()
         if not light_rigs_path:
             LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
-        light_rig = os.path.join(light_rigs_path, defines.ARTELLA_WORKING_FOLDER, self._name.title(), light_rig_name)
+        working_folder = artella.config.get('server', 'working_folder')
+        light_rig = os.path.join(light_rigs_path, working_folder, self._name.title(), light_rig_name)
         if not os.path.exists(light_rig):
             LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
             return False
@@ -125,13 +127,14 @@ class LightRig(base.BaseWidget, object):
         Internal callback function that is called when the user wants to import a light rig
         """
 
-        light_rigs_path = self._project.get_light_rigs_path()
+        light_rigs_path = self.get_light_rigs_path()
         if not light_rigs_path:
             LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
-        light_rig = os.path.join(light_rigs_path, defines.ARTELLA_WORKING_FOLDER, self._name.title(), light_rig_name)
+        working_folder = artella.config.get('server', 'working_folder')
+        light_rig = os.path.join(light_rigs_path, working_folder, self._name.title(), light_rig_name)
         if not os.path.exists(light_rig):
             LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
             return False
@@ -143,13 +146,14 @@ class LightRig(base.BaseWidget, object):
         Internal callback function that is called when the user wants to reference a light rig
         """
 
-        light_rigs_path = self._project.get_light_rigs_path()
+        light_rigs_path = ArtellaLightRigManager.get_light_rigs_path()
         if not light_rigs_path:
             LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
-        light_rig = os.path.join(light_rigs_path, defines.ARTELLA_WORKING_FOLDER, self._name.title(), light_rig_name)
+        working_folder = artella.config.get('server', 'working_folder')
+        light_rig = os.path.join(light_rigs_path, working_folder, self._name.title(), light_rig_name)
         print(light_rig)
         if not os.path.exists(light_rig):
             LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
@@ -158,12 +162,23 @@ class LightRig(base.BaseWidget, object):
         return tp.Dcc.reference_file(light_rig, force=True)
 
 
-class ArtellaLightRigManager(tool.Tool, object):
+class ArtellaLightRigManager(artellapipe.Tool, object):
 
     LIGHT_RIG_CLASS = LightRig
 
     def __init__(self, project, config):
         super(ArtellaLightRigManager, self).__init__(project=project, config=config)
+
+    @staticmethod
+    def get_light_rigs_path():
+        tool_id = 'artellapipe-tools-lightrigsmanager'
+        config = artellapipe.ToolsMgr().get_config(tool_id)
+        if not config:
+            LOGGER.warning('No config found for "{}"!'.format(tool_id))
+            return None
+
+        return path_utils.clean_path(
+            os.path.join(artellapipe.AssetsMgr().get_assets_path(), config.get('lightrigs_path')))
 
     def ui(self):
         super(ArtellaLightRigManager, self).ui()
@@ -198,10 +213,11 @@ class ArtellaLightRigManager(tool.Tool, object):
         self._sync_btn.clicked.connect(self._on_sync_light_rigs)
 
     def _update_ui(self):
-        valid_light_rigs = self._project.get_light_rigs_path()
+        valid_light_rigs = self.get_light_rigs_path()
         if not valid_light_rigs:
             return
-        working_path = os.path.join(valid_light_rigs, defines.ARTELLA_WORKING_FOLDER)
+        working_folder = artella.config.get('server', 'working_folder')
+        working_path = os.path.join(valid_light_rigs, working_folder)
         if not os.path.exists(working_path):
             return
 
@@ -211,10 +227,11 @@ class ArtellaLightRigManager(tool.Tool, object):
             self._light_rigs_layout.addWidget(light_rig)
 
     def _on_open_light_rigs_folder(self):
-        light_rigs_path = os.path.join(self._project.get_light_rigs_path(), defines.ARTELLA_WORKING_FOLDER)
+        working_folder = artella.config.get('server', 'working_folder')
+        light_rigs_path = os.path.join(self.get_light_rigs_path(), working_folder)
         if os.path.exists(light_rigs_path):
             folder_utils.open_folder(light_rigs_path)
 
     def _on_sync_light_rigs(self):
-        self._project.sync_paths([self._project.get_light_rigs_path()])
+        artellapipe.FilesMgr().sync_paths([self.get_light_rigs_path()], recursive=True)
         self._update_ui()
