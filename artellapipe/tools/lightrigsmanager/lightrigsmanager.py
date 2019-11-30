@@ -152,11 +152,8 @@ class LightRig(base.BaseWidget, object):
             LOGGER.warning('Impossible to reference Light Rig: {} | {} | {}'.format(
                 self._name, self._path, self._file_type))
             return None
-        light_rig_file = light_rig_file_class(light_rig_name, file_path=self._path)
-        light_rig_file.reference_file()
-
-        #
-        # return tp.Dcc.reference_file(light_rig, force=True)
+        light_rig_file = light_rig_file_class(self._project, light_rig_name, file_path=self._path)
+        light_rig_file.import_file(reference=True)
 
 
 class ArtellaLightRigManager(artellapipe.Tool, object):
@@ -174,15 +171,18 @@ class ArtellaLightRigManager(artellapipe.Tool, object):
 
         light_rigs_template_name = self.config.get('lightrigs_template', None)
         if not light_rigs_template_name:
-            LOGGER.warning(
-                'No Light Rigs Template name defined in configuration file: "{}"'.format(self.config.get_path()))
+            msg = 'No Light Rigs Template name defined in configuration file: "{}"'.format(self.config.get_path())
+            self.show_warning_message(msg)
+            LOGGER.warning(msg)
             return None
         template = artellapipe.FilesMgr().get_template(light_rigs_template_name)
         if not template:
+            LOGGER.warning(
+                '"{}" template is not defined in project files configuration file!'.format(light_rigs_template_name))
             return None
 
         template_dict = {
-            'assets_path': artellapipe.AssetsMgr().get_assets_path()
+            'project_path': self._project.get_path()
         }
         light_rigs_path = template.format(template_dict)
 
@@ -243,7 +243,14 @@ class ArtellaLightRigManager(artellapipe.Tool, object):
         Synchronizes current light rigs into user computer
         """
 
-        artellapipe.FilesMgr().sync_paths([self.get_light_rigs_path()], recursive=True)
+        light_rigs_path = self.get_light_rigs_path()
+        if not light_rigs_path:
+            msg = 'Impossible to synchronize light rigs because its path is not defined!'
+            self.show_warning_message(msg)
+            LOGGER.warning(msg)
+            return
+
+        artellapipe.FilesMgr().sync_paths([light_rigs_path], recursive=True)
         self._update_ui(allow_sync=False)
 
     def _update_ui(self, allow_sync=True):
@@ -281,11 +288,13 @@ class ArtellaLightRigManager(artellapipe.Tool, object):
         """
 
         light_rigs_path = self.get_light_rigs_path()
-        if os.path.exists(light_rigs_path):
+        if light_rigs_path and os.path.exists(light_rigs_path):
             folder_utils.open_folder(light_rigs_path)
             return True
         else:
-            LOGGER.warning('Light Rigs Folder "{}" does not exists!'.format(light_rigs_path))
+            msg = 'Light Rigs Folder "{}" does not exists!'.format(light_rigs_path)
+            self.show_warning_message(msg)
+            LOGGER.warning(msg)
             return False
 
     def _on_sync_light_rigs(self):
