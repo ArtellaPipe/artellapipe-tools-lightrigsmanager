@@ -20,24 +20,25 @@ from Qt.QtCore import *
 
 from tpPyUtils import folder as folder_utils, path as path_utils
 
-import tpDccLib as tp
-
 from tpQtLib.core import base, qtutils
 from tpQtLib.widgets import splitters, stack
 
 import artellapipe
 from artellapipe.utils import resource
 
+from artellapipe.tools.lightrigsmanager.core import api
+
 LOGGER = logging.getLogger()
 
 
 class LightRig(base.BaseWidget, object):
-    def __init__(self, project, name, path, file_type, parent=None):
+    def __init__(self, project, name, path, file_type, config, parent=None):
 
         self._project = project
         self._name = name
         self._path = path
         self._file_type = file_type
+        self._config = config
 
         super(LightRig, self).__init__(parent=parent)
 
@@ -106,19 +107,15 @@ class LightRig(base.BaseWidget, object):
         Internal callback function that is called when the user wants to open a light rig
         """
 
-        if tp.Dcc.scene_is_modified():
-            tp.Dcc.save_current_scene(force=False)
-
         if not self._path:
             LOGGER.warning('Project {} has no Light Rigs!'.format(self._project.name.title()))
             return
 
         light_rig_name = self._get_light_rig_name()
-        light_rig = os.path.join(self._path, self._name.title(), light_rig_name)
-        if not os.path.exists(light_rig):
-            LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
-            return False
-        return tp.Dcc.open_file(light_rig, force=True)
+
+        return api.open_light_rig(
+            light_rig_name=light_rig_name, light_rig_folder=self._name, project=self._project,
+            config=self._config, light_rigs_path=self._path)
 
     def _on_import_light_rig(self):
         """
@@ -130,12 +127,10 @@ class LightRig(base.BaseWidget, object):
             return
 
         light_rig_name = self._get_light_rig_name()
-        light_rig = os.path.join(self._path, self._name.title(), light_rig_name)
-        if not os.path.exists(light_rig):
-            LOGGER.error('Light Rig File {} does not exists!'.format(light_rig_name))
-            return False
 
-        return tp.Dcc.import_file(light_rig, force=True)
+        return api.import_light_rig(
+            light_rig_name=light_rig_name, light_rig_folder=self._name, project=self._project,
+            config=self._config, light_rigs_path=self._path)
 
     def _on_reference_light_rig(self):
         """
@@ -147,13 +142,10 @@ class LightRig(base.BaseWidget, object):
             return
 
         light_rig_name = self._get_light_rig_name()
-        light_rig_file_class = artellapipe.FilesMgr().get_file_class(self._file_type)
-        if not light_rig_file_class:
-            LOGGER.warning('Impossible to reference Light Rig: {} | {} | {}'.format(
-                self._name, self._path, self._file_type))
-            return None
-        light_rig_file = light_rig_file_class(self._project, light_rig_name, file_path=self._path)
-        light_rig_file.import_file(reference=True)
+
+        return api.reference_light_rig(
+            light_rig_name=light_rig_name, light_rig_folder=self._name, project=self._project,
+            config=self._config, light_rigs_path=self._path)
 
 
 class ArtellaLightRigManager(artellapipe.Tool, object):
@@ -166,25 +158,14 @@ class ArtellaLightRigManager(artellapipe.Tool, object):
     def get_light_rigs_path(self):
         """
         Returns path where Light Rigs are located
-        :return:
+        :return: str
         """
 
-        light_rigs_template_name = self.config.get('lightrigs_template', None)
-        if not light_rigs_template_name:
+        light_rigs_path = api.get_light_rigs_path(project=self._project, config=self._config)
+        if not light_rigs_path:
             msg = 'No Light Rigs Template name defined in configuration file: "{}"'.format(self.config.get_path())
             self.show_warning_message(msg)
-            LOGGER.warning(msg)
             return None
-        template = artellapipe.FilesMgr().get_template(light_rigs_template_name)
-        if not template:
-            LOGGER.warning(
-                '"{}" template is not defined in project files configuration file!'.format(light_rigs_template_name))
-            return None
-
-        template_dict = {
-            'project_path': self._project.get_path()
-        }
-        light_rigs_path = template.format(template_dict)
 
         return light_rigs_path
 
@@ -278,7 +259,7 @@ class ArtellaLightRigManager(artellapipe.Tool, object):
         light_rig_file_type = self.config.get('lightrig_file_type', default='lightrig')
         for f in os.listdir(light_rigs_path):
             light_rig = self.LIGHT_RIG_CLASS(
-                project=self._project, name=f, path=light_rigs_path, file_type=light_rig_file_type)
+                project=self._project, name=f, path=light_rigs_path, file_type=light_rig_file_type, config=self._config)
             self._light_rigs_layout.addWidget(light_rig)
         self._stack.slide_in_index(1)
 
