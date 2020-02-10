@@ -18,9 +18,9 @@ import logging
 from tpPyUtils import path as path_utils
 
 import artellapipe
-from artellapipe.core import config as artella_config
 
 LOGGER = logging.getLogger()
+
 
 def get_config():
     """
@@ -144,7 +144,7 @@ def open_light_rig(light_rig_name, light_rig_folder=None, project=None, config=N
     return light_rig_file_inst.open_file()
 
 
-def import_light_rig(light_rig_name, light_rig_folder=None,  project=None, config=None, light_rigs_path=None):
+def import_light_rig(light_rig_name, light_rig_folder=None, project=None, config=None, light_rigs_path=None):
     """
     Imports light rig in current DCC scene
     :param light_rig_name: str
