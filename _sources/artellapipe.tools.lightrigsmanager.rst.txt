@@ -1,12 +1,12 @@
 artellapipe.tools.lightrigsmanager package
 ==========================================
 
-Submodules
-----------
+Subpackages
+-----------
 
 .. toctree::
 
-   artellapipe.tools.lightrigsmanager.lightrigsmanager
+   artellapipe.tools.lightrigsmanager.core
 
 Module contents
 ---------------

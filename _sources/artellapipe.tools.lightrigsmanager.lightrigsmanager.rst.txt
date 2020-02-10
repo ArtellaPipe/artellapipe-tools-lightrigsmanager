@@ -1,7 +1,0 @@
-artellapipe.tools.lightrigsmanager.lightrigsmanager module
-==========================================================
-
-.. automodule:: artellapipe.tools.lightrigsmanager.lightrigsmanager
-   :members:
-   :undoc-members:
-   :show-inheritance:
