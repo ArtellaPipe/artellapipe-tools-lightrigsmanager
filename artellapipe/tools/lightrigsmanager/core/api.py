@@ -15,7 +15,8 @@ __email__ = "tpovedatd@gmail.com"
 import os
 import logging
 
-from tpPyUtils import path as path_utils
+import tpDcc
+from tpDcc.libs.python import path as path_utils
 
 import artellapipe
 
@@ -28,10 +29,7 @@ def get_config():
     :return: ArtellaConfiguration
     """
 
-    tool_data = artellapipe.ToolsMgr().tools.get('artellapipe-tools-lightrigsmanager')
-    config = tool_data['config']
-
-    return config
+    return tpDcc.ToolsMgr().get_tool_config('artellapipe-tools-lightrigsmanager')
 
 
 def get_light_rigs_path(project=None, config=None):
@@ -67,7 +65,7 @@ def get_light_rigs_path(project=None, config=None):
 
     project_drive = project.get_drive()
     if not light_rigs_path.startswith(project_drive):
-        light_rigs_path = path_utils.clean_path(os.path.join(project_drive, light_rigs_path))
+        light_rigs_path = path_utils.clean_path(os.path.join(project_drive, os.path.splitdrive(light_rigs_path)[-1]))
 
     return path_utils.clean_path(light_rigs_path)
 
