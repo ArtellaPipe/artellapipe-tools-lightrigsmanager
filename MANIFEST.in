@@ -1,3 +1,2 @@
 include artellapipe/tools/lightrigsmanager/__logging__.ini
-include artellapipe/tools/lightrigsmanager/resources/images/*.*
-include artellapipe/tools/lightrigsmanager/resources/icons/lightrigs/*.*
+recursive-include artellapipe/tools/lightrigsmanager/resources/* *.*
