@@ -63,11 +63,7 @@ def get_light_rigs_path(project=None, config=None):
     }
     light_rigs_path = template.format(template_dict)
 
-    project_drive = project.get_drive()
-    if not light_rigs_path.startswith(project_drive):
-        light_rigs_path = path_utils.clean_path(os.path.join(project_drive, os.path.splitdrive(light_rigs_path)[-1]))
-
-    return path_utils.clean_path(light_rigs_path)
+    return artellapipe.FilesMgr().prefix_path_with_project_path(light_rigs_path)
 
 
 def get_light_rig_file_type(config=None):
