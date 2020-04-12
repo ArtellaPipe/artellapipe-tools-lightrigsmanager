@@ -63,7 +63,7 @@ def get_light_rigs_path(project=None, config=None):
     }
     light_rigs_path = template.format(template_dict)
 
-    return artellapipe.FilesMgr().prefix_path_with_project_path(light_rigs_path)
+    return artellapipe.FilesMgr().fix_path(light_rigs_path)
 
 
 def get_light_rig_file_type(config=None):

@@ -21,7 +21,7 @@ from Qt.QtCore import *
 import tpDcc
 from tpDcc.libs.python import folder as folder_utils
 from tpDcc.libs.qt.core import base, qtutils
-from tpDcc.libs.qt.widgets import splitters, stack
+from tpDcc.libs.qt.widgets import dividers, stack
 
 import artellapipe
 
@@ -182,11 +182,11 @@ class ArtellaLightRigManager(artellapipe.ToolWidget, object):
         self._sync_btn.setIcon(tpDcc.ResourcesMgr().icon('sync'))
         buttons_layout.addItem(QSpacerItem(10, 0, QSizePolicy.Expanding, QSizePolicy.Fixed))
         buttons_layout.addWidget(self._open_btn)
-        buttons_layout.addWidget(splitters.get_horizontal_separator_widget())
+        buttons_layout.addWidget(dividers.get_horizontal_separator_widget())
         buttons_layout.addWidget(self._sync_btn)
         buttons_layout.addItem(QSpacerItem(10, 0, QSizePolicy.Expanding, QSizePolicy.Fixed))
 
-        self.main_layout.addLayout(splitters.SplitterLayout())
+        self.main_layout.addLayout(dividers.DividerLayout())
 
         self._stack = stack.SlidingStackedWidget()
         self.main_layout.addWidget(self._stack)
@@ -253,6 +253,8 @@ class ArtellaLightRigManager(artellapipe.ToolWidget, object):
             else:
                 self._stack.slide_in_index(0)
                 return
+        if not light_rigs_path or not os.path.isdir(light_rigs_path):
+            return
 
         qtutils.clear_layout(self._light_rigs_layout)
         light_rig_file_type = self.config.get('lightrig_file_type', default='lightrig')
