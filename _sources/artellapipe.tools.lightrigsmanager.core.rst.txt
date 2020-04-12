@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    artellapipe.tools.lightrigsmanager.core.api
    artellapipe.tools.lightrigsmanager.core.lightrigsmanager
