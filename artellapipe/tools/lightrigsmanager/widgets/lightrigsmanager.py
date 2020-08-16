@@ -13,6 +13,7 @@ __maintainer__ = "Tomas Poveda"
 __email__ = "tpovedatd@gmail.com"
 
 import os
+import time
 import logging.config
 
 from Qt.QtWidgets import *
@@ -24,7 +25,7 @@ from tpDcc.libs.qt.core import base, qtutils
 from tpDcc.libs.qt.widgets import dividers, stack
 
 import artellapipe
-
+from artellapipe.core import tool
 from artellapipe.tools.lightrigsmanager.core import api
 
 LOGGER = logging.getLogger()
@@ -147,7 +148,7 @@ class LightRig(base.BaseWidget, object):
             config=self._config, light_rigs_path=self._path)
 
 
-class ArtellaLightRigManager(artellapipe.ToolWidget, object):
+class ArtellaLightRigManager(tool.ArtellaToolWidget, object):
 
     LIGHT_RIG_CLASS = LightRig
 
